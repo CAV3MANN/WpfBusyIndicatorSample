@@ -1,0 +1,68 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:CustomControl.BusyIndicator">
+    <SolidColorBrush x:Key="BusyViewBrush"
+                     Opacity=".5"
+                     Color="Red" />
+    <Style TargetType="{x:Type local:BusyView}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:BusyView}">
+                    <ControlTemplate.Resources>
+                        <Storyboard x:Key="IndicatorRotation"                                    
+                                    RepeatBehavior="Forever">
+                            <DoubleAnimation BeginTime="00:00:00"
+                                             Duration="00:00:02"
+                                             To="360"
+                                             From="0"
+                                             Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                             Storyboard.TargetName="IndicatorArc" />
+                        </Storyboard>
+                    </ControlTemplate.Resources>
+                    <Grid>
+                        <ContentPresenter x:Name="ContentPresenter" />
+                        <Border x:Name="BusyBlocker"
+                                Visibility="Collapsed"
+                                Background="{StaticResource BusyViewBrush}"/>
+                        <local:Arc x:Name="IndicatorArc"
+                                   StartAngle="0"
+                                   EndAngle="90"
+                                   Height="60"
+                                   Width="60"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   StrokeThickness="5"
+                                   Stroke="Red"
+                                   Visibility="Collapsed"
+                                   RenderTransformOrigin="0.5,0.5">
+                            <local:Arc.RenderTransform>
+                                <RotateTransform Angle="0" />
+                            </local:Arc.RenderTransform>
+                        </local:Arc>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsBusy"
+                                 Value="True">
+                            <Setter TargetName="BusyBlocker"
+                                    Property="Visibility" 
+                                    Value="Visible"/>
+                            <Setter TargetName="IndicatorArc"
+                                    Property="Visibility" 
+                                    Value="Visible"/>
+                            <Setter TargetName="ContentPresenter"
+                                    Property="IsHitTestVisible"
+                                    Value="False" />
+                        </Trigger>
+                        <EventTrigger RoutedEvent="local:BusyView.IsBusyStarted">
+                            <BeginStoryboard Storyboard="{StaticResource IndicatorRotation}"
+                                             Name="BeginIndicatorRotation"/>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="local:BusyView.IsBusyStopped">
+                            <StopStoryboard BeginStoryboardName="BeginIndicatorRotation" />
+                        </EventTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
